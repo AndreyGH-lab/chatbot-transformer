@@ -2,7 +2,6 @@ import torch
 from model import TransformerModel
 from utils import build_vocab, text_to_tensor, create_masks
 
-# Загрузка словаря
 print("Loading vocabulary...")
 vocab = torch.load('vocab.pt')
 
@@ -60,7 +59,6 @@ def generate_response(input_text, max_len=20, nhead=8, top_k=50, top_p=0.9, temp
         probs = torch.softmax(output[:, -1, :] / temperature, dim=-1)
         print(f"Output probs shape: {probs.shape}, max prob: {probs.max().item()}")
 
-        # Top-p sampling
         sorted_probs, sorted_indices = torch.sort(probs, descending=True)
         cumulative_probs = torch.cumsum(sorted_probs, dim=-1)
         sorted_indices_to_remove = cumulative_probs > top_p
@@ -70,7 +68,6 @@ def generate_response(input_text, max_len=20, nhead=8, top_k=50, top_p=0.9, temp
         probs[0, indices_to_remove] = 0
         probs = probs / probs.sum()
 
-        # Выбор токена
         next_token_idx = torch.multinomial(probs, num_samples=1).item()
         next_token = sorted_indices[0, next_token_idx].item()
 
